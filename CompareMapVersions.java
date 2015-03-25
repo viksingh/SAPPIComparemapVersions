@@ -1,4 +1,4 @@
-package org.saki.maps;
+package org.saki.demo;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
