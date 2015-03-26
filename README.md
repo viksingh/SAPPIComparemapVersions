@@ -1,2 +1,1 @@
-# SAPPIComparemapVersions
-Compare SAP PI Map versions between 2 systems
+Demonstrates how to compare map versions between 2 SAP PI systems. To get it working, update the URL with parameters of your system and the inormation will be available as a spreadsheet. It can help to identify the maps which are missing in downstream environments or if they have different map versions.
