@@ -222,6 +222,12 @@ public class CompareMapVersions {
 			HttpEntity responseEntity = response.getEntity();
 
 			String content = removeExtraTags(responseEntity);
+//For PI 7.4 systems			
+		   if (content.toLowerCase().contains("logon".toLowerCase())) {
+
+				content = authAgain(url, combinePasswdSys1);
+
+			}
 
 			Document docResponse = Jsoup.parse(content, "", Parser.xmlParser());
 
@@ -365,6 +371,25 @@ public class CompareMapVersions {
 		content = content.replace("</p1:", "</");
 		content = content.replace("<tr:", "<");
 		content = content.replace("</tr:", "</");
+		return content;
+	}
+	
+		static String authAgain(String _url, String _combinedPassword)
+			throws IOException, MalformedURLException {
+
+		WebClient webClient = new WebClient();
+		webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+		setCredentials(webClient, _combinedPassword);
+
+		SgmlPage currentPage = webClient.getPage(_url);
+
+		String content = currentPage.asXml();
+
+		content = content.replace("<p1:", "<");
+		content = content.replace("</p1:", "</");
+		content = content.replace("<tr:", "<");
+		content = content.replace("</tr:", "</");
+
 		return content;
 	}
 
