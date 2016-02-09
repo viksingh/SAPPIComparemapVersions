@@ -1,10 +1,12 @@
-package org.saki.demo;
+package org.saki.maps;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.bind.DatatypeConverter;
@@ -30,6 +32,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
+import com.gargoylesoftware.htmlunit.NicelyResynchronizingAjaxController;
+import com.gargoylesoftware.htmlunit.SgmlPage;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlCheckBoxInput;
 import com.gargoylesoftware.htmlunit.html.HtmlForm;
@@ -40,18 +44,25 @@ import com.gargoylesoftware.htmlunit.html.HtmlSelect;
 import com.gargoylesoftware.htmlunit.html.HtmlSubmitInput;
 
 public class CompareMapVersions {
+
+	static String fileName = new SimpleDateFormat("yyyyMMddhhmm'.txt'").format(new Date());	
+	static final String EXCEL_PATH = "C:/temp/MapVersions_".concat(fileName).concat(".xls");
 	
-	static final String EXCEL_PATH = "C:/temp/MapVersions.xls";
-	private static final String SID1 = "XXX";
-	static final String SID2 = "YYY";	
+	private static final String SID1 = "SID1";
+	static final String SID2 = "SID2";
 	public static final String usrSys1 = "http://host1:port1/rep/support/SimpleQuery";
 	public static final String urlSys2 = "http://host2:port2/rep/support/SimpleQuery";
+	
+	
+	
+	
 
-	public static final String userSys1 = "user1";
-	public static final String passwordSys1 = "pwd1";
+	public static final String userSys1 = "AUSINGHVI2";
+	public static final String passwordSys1 = "Vihaan6@";
 
-	public static final String userSys2 = "user2";
-	public static final String passwordSys2 = "pwd2";
+
+	public static final String userSys2 = "AUSINGHVI2";
+	public static final String passwordSys2 = "Vihaan6@";
 
 	public static final String combinePasswdSys1 = userSys1.concat(":"
 			.concat(passwordSys1));
@@ -116,8 +127,8 @@ public class CompareMapVersions {
 
 	public static void main(String[] args) throws IOException {
 
-		// Remove log4j warnings 		
-		org.apache.log4j.BasicConfigurator.configure(new NullAppender());		
+		// Remove log4j warnings
+		org.apache.log4j.BasicConfigurator.configure(new NullAppender());
 
 		List<MappingObject> sys1Maps = new ArrayList<MappingObject>();
 		List<MappingObject> sys2Maps = new ArrayList<MappingObject>();
@@ -147,6 +158,12 @@ public class CompareMapVersions {
 
 			String content = removeExtraTags(responseEntity);
 
+			if (content.toLowerCase().contains("logon".toLowerCase())) {
+
+				content = authAgain(url, combinePasswdSys1);
+
+			}			
+
 			Document docResponse = Jsoup.parse(content, "", Parser.xmlParser());
 
 			for (Element e : docResponse.select("xiObj")) {
@@ -171,9 +188,6 @@ public class CompareMapVersions {
 					System.out.println("Reading map # " + i + " " + mapName);
 					i++;
 					
-//					  if (i == 5) { break outerloopSys1; }
-					 
-
 				}
 
 				for (Element e1 : docResponse.select("generic")) {
@@ -197,6 +211,8 @@ public class CompareMapVersions {
 
 		}
 
+		 
+
 		i = 0;
 
 		String resultPageTextSys2 = fillSimpleQueryParams(urlSys2,
@@ -204,7 +220,7 @@ public class CompareMapVersions {
 		Document docSys2 = Jsoup.parse(resultPageTextSys2, "UTF-8");
 
 		Elements linksSys2 = docSys2.select("a[href]");
-		
+
 		CloseableHttpClient httpclientSys2 = HttpClients.createDefault();
 		CredentialsProvider credentialsProviderSys2 = new BasicCredentialsProvider();
 		credentialsProviderSys2.setCredentials(AuthScope.ANY,
@@ -222,8 +238,8 @@ public class CompareMapVersions {
 			HttpEntity responseEntity = response.getEntity();
 
 			String content = removeExtraTags(responseEntity);
-//For PI 7.4 systems			
-		   if (content.toLowerCase().contains("logon".toLowerCase())) {
+
+			if (content.toLowerCase().contains("logon".toLowerCase())) {
 
 				content = authAgain(url, combinePasswdSys1);
 
@@ -252,9 +268,8 @@ public class CompareMapVersions {
 
 					System.out.println("Reading map # " + i + " " + mapName);
 					i++;
-					
-					  if (i == 600) { break outerloopSys2; }
-					 }
+
+	}
 
 				for (Element e1 : docResponse.select("generic")) {
 					for (Element e2 : e1.select("admInf")) {
@@ -294,15 +309,16 @@ public class CompareMapVersions {
 		rowhead.createCell(5).setCellValue("ModifyBy");
 		rowhead.createCell(6).setCellValue("ModifyAt");
 
-		rowhead.createCell(7).setCellValue("Match?");
+		rowhead.createCell(7).setCellValue("Present?");
+		rowhead.createCell(8).setCellValue("Match?");
 
-		rowhead.createCell(8).setCellValue("MapName");
-		rowhead.createCell(9).setCellValue("SID");
-		rowhead.createCell(10).setCellValue("Namespace");
-		rowhead.createCell(11).setCellValue("SWCV");
-		rowhead.createCell(12).setCellValue("Version");
-		rowhead.createCell(13).setCellValue("ModifyBy");
-		rowhead.createCell(14).setCellValue("ModifyAt");
+		rowhead.createCell(9).setCellValue("MapName");
+		rowhead.createCell(10).setCellValue("SID");
+		rowhead.createCell(11).setCellValue("Namespace");
+		rowhead.createCell(12).setCellValue("SWCV");
+		rowhead.createCell(13).setCellValue("Version");
+		rowhead.createCell(14).setCellValue("ModifyBy");
+		rowhead.createCell(15).setCellValue("ModifyAt");
 
 		int j = 0;
 
@@ -333,23 +349,36 @@ public class CompareMapVersions {
 			row.createCell(4).setCellValue(sys1Map.version);
 			row.createCell(5).setCellValue(sys1Map.modifBy);
 			row.createCell(6).setCellValue(sys1Map.modifAt);
+			
+
+			
+			String devMapName = sys1Map.getMapName();
+			String pPMapName = sys2Map.getMapName();
+			
+			if (devMapName.equals(pPMapName)) {
+				row.createCell(7).setCellValue("Yes");
+			} else {
+				row.createCell(7).setCellValue("No");
+			}
+			
+			
 
 			String devVersion = sys1Map.getVersion();
 			String PPVersion = sys2Map.getVersion();
 
 			if (devVersion.equals(PPVersion)) {
-				row.createCell(7).setCellValue("Yes");
+				row.createCell(8).setCellValue("Yes");
 			} else {
-				row.createCell(7).setCellValue("No");
+				row.createCell(8).setCellValue("No");
 			}
 
-			row.createCell(8).setCellValue(sys2Map.mapName);
-			row.createCell(9).setCellValue(sys2Map.SID);
-			row.createCell(10).setCellValue(sys2Map.namespace);
-			row.createCell(11).setCellValue(sys2Map.SWCV);
-			row.createCell(12).setCellValue(sys2Map.version);
-			row.createCell(13).setCellValue(sys2Map.modifBy);
-			row.createCell(14).setCellValue(sys2Map.modifAt);
+			row.createCell(9).setCellValue(sys2Map.mapName);
+			row.createCell(10).setCellValue(sys2Map.SID);
+			row.createCell(11).setCellValue(sys2Map.namespace);
+			row.createCell(12).setCellValue(sys2Map.SWCV);
+			row.createCell(13).setCellValue(sys2Map.version);
+			row.createCell(14).setCellValue(sys2Map.modifBy);
+			row.createCell(15).setCellValue(sys2Map.modifAt);
 
 			index = -1;
 		}
@@ -360,21 +389,7 @@ public class CompareMapVersions {
 
 	}
 
-	/**
-	 * @param responseEntity
-	 * @return
-	 * @throws IOException
-	 */
-	static String removeExtraTags(HttpEntity responseEntity) throws IOException {
-		String content = EntityUtils.toString(responseEntity);
-		content = content.replace("<p1:", "<");
-		content = content.replace("</p1:", "</");
-		content = content.replace("<tr:", "<");
-		content = content.replace("</tr:", "</");
-		return content;
-	}
-	
-		static String authAgain(String _url, String _combinedPassword)
+	static String authAgain(String _url, String _combinedPassword)
 			throws IOException, MalformedURLException {
 
 		WebClient webClient = new WebClient();
@@ -390,6 +405,21 @@ public class CompareMapVersions {
 		content = content.replace("<tr:", "<");
 		content = content.replace("</tr:", "</");
 
+		return content;
+	}
+
+	/**
+	 * @param responseEntity
+	 * @return
+	 * @throws IOException
+	 */
+
+	static String removeExtraTags(HttpEntity responseEntity) throws IOException {
+		String content = EntityUtils.toString(responseEntity);
+		content = content.replace("<p1:", "<");
+		content = content.replace("</p1:", "</");
+		content = content.replace("<tr:", "<");
+		content = content.replace("</tr:", "</");
 		return content;
 	}
 
