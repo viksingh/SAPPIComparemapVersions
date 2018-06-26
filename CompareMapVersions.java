@@ -57,12 +57,12 @@ public class CompareMapVersions {
 	
 	
 
-	public static final String userSys1 = "AUSINGHVI2";
-	public static final String passwordSys1 = "Vihaan6@";
+	public static final String userSys1 = "user";
+	public static final String passwordSys1 = "passwd";
 
 
-	public static final String userSys2 = "AUSINGHVI2";
-	public static final String passwordSys2 = "Vihaan6@";
+	public static final String userSys2 = "user";
+	public static final String passwordSys2 = "passwd";
 
 	public static final String combinePasswdSys1 = userSys1.concat(":"
 			.concat(passwordSys1));
